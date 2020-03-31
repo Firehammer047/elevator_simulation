@@ -4,7 +4,7 @@ In simulated time, each timestep is the time it takes the elevator to move 1 flo
 
 
 March 2020
-Final version of 1 elevator
+First version of 1 elevator
 
 Apr 2020
 Working on 2 elevator model
