@@ -4,6 +4,8 @@
 #	Mode 1: Elevators can be called to the same floor simultaneously
 #	Mode 2: Only 1 elevator will answer a call to a floor
 #
+#	This is the streamlined version and most comments were omitted.
+#
 #	Copyright (c) 2020 GB Tony Cabrera
 #
 
