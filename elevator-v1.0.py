@@ -1,4 +1,5 @@
 #
+#	v1.0
 #	elevator_simulation is a cost analysis program for different
 #	elevator logic modes.
 #	Mode 1: Elevators can be called to the same floor simultaneously
@@ -33,100 +34,100 @@ P_NOON = 0.75
 P_FIVE = 0.9
 
 class Elevator():
-	
-	def __init__(self):
+
+	def __init__(self):			# Initialize the elevator variables
 		global TOP_FLOOR
-		self.total_floors = 0
-		self.current_floor = 0 # where we are now
-		self.direction = 0
-		self.cargo = 0
-		self.button_panel = []
-		self.call_button_up = []
-		self.call_button_dn = []
-		self.dest_inside = []
-		for i in range(TOP_FLOOR + 1):
+		self.total_floors = 0		# Total number of floors traversed
+		self.current_floor = 0		# Where we are now
+		self.direction = 0			# Direction elevator is going (1 up, -1 down)
+		self.cargo = 0				# People inside box
+		self.button_panel = []		# Floor panel inside elevator
+		self.call_button_up = []	# Call button on particular floor (0-TOP_FLOOR) 1=ON, 0=OFF
+		self.call_button_dn = []	# Call button on particular floor (0-TOP_FLOOR) 1=ON, 0=OFF
+		self.dest_inside = []		# Number of people going to floor "i"
+		for i in range(TOP_FLOOR + 1):	# Clear all buttons and destinations
 			self.button_panel.append(0)
 			self.call_button_up.append(0)
 			self.call_button_dn.append(0)
 			self.dest_inside.append(0)
 	
-	def unload_cargo(self):
+	def unload_cargo(self):		# Remove passengers from box and turn button OFF
 		self.cargo -= self.dest_inside[self.current_floor]
 		self.dest_inside[self.current_floor] = 0
 		self.button_panel[self.current_floor] = 0
 	
-	def load_cargo(self):
+	def load_cargo(self):		# Add passengers to box and press buttons
 		global TOP_FLOOR
 		global queue_up
 		global dest_outside
-		if self.direction > 0:
+		if self.direction > 0:	# If we're going UP then add people going up and press panel buttons
 			self.cargo += queue_up[self.current_floor]
-			queue_up[self.current_floor] = 0
+			queue_up[self.current_floor] = 0	# No one left outside the doors
 			for i in range(self.current_floor + 1, TOP_FLOOR + 1):
 				self.dest_inside[i] = dest_outside[self.current_floor][i]
 				dest_outside[self.current_floor][i] = 0
 				if self.dest_inside[i] > 0:
 					self.button_panel[i] = 1
-			self.call_button_up[self.current_floor] = 0
-		if self.direction < 0:
+			self.call_button_up[self.current_floor] = 0	# Turn call button OFF
+		if self.direction < 0:	# If we're going down, do the same (but with people going DOWN)
 			self.cargo += queue_dn[self.current_floor]
-			queue_dn[self.current_floor] = 0
+			queue_dn[self.current_floor] = 0	# No one left outside the doors
 			for i in range(self.current_floor):
 				self.dest_inside[i] = dest_outside[self.current_floor][i]
 				dest_outside[self.current_floor][i] = 0
 				if self.dest_inside[i] > 0:
 					self.button_panel[i] = 1
-			self.call_button_dn[self.current_floor] = 0
+			self.call_button_dn[self.current_floor] = 0	# Turn call button OFF
 	
 	def goto_next_floor(self):
-		self.current_floor += self.direction
+		self.current_floor += self.direction	# Add or subtract a floor
 		if self.direction != 0:
-			self.total_floors += 1
+			self.total_floors += 1	# Add a floor to the running total
 	
 	def stop_at_this_floor(self):
 		global TOP_FLOOR
-		if self.button_panel[self.current_floor]:
+		if self.button_panel[self.current_floor]:	# We have a request to stop at this floor
 			return 1
 		if self.direction > 0:
-			if self.call_button_up[self.current_floor]:
+			if self.call_button_up[self.current_floor]:	# There's a call outside and we're going in the same direction
 				return 1
-			if self.current_floor == TOP_FLOOR:
+			if self.current_floor == TOP_FLOOR:	# We reached the top. Yay!
 				return 1
 		if self.direction < 0:
-			if self.call_button_dn[self.current_floor]:
+			if self.call_button_dn[self.current_floor]: # There's a call and we're going DOWN
 				return 1
-			if self.current_floor == 0:
+			if self.current_floor == 0:	# We are on the ground floor! Yay!
 				return 1
 		return 0
 	
-	def set_direction(self):
+	def set_direction(self):	# Figure out which direction we need to go
 		global TOP_FLOOR
-		if self.direction > 0:
-			if self.current_floor != 0 and self.current_floor != TOP_FLOOR:
-				if not self.any_buttons_above() and not self.any_calls_above():
+		if self.direction > 0:	# We're already going UP
+			if self.current_floor != 0 and self.current_floor != TOP_FLOOR: # Intermediate floors
+				if not self.any_buttons_above() and not self.any_calls_above():	
 					if self.call_button_dn[self.current_floor] or self.any_calls_below():
 						self.direction = -1
-				if not self.any_buttons_above() and not self.any_calls():
+				if not self.any_buttons_above() and not self.any_calls():	# Nothing to do
 					self.direction = 0
 			if self.current_floor == TOP_FLOOR:
 				if self.any_calls():
 					self.direction = -1
 				else:
-					self.direction = 0
-		elif self.direction < 0:
-			if self.current_floor != 0 and self.current_floor != TOP_FLOOR:
+					self.direction = 0	# Nothing to do, no calls
+		elif self.direction < 0: # We're already going DOWN
+			if self.current_floor != 0 and self.current_floor != TOP_FLOOR:	# Intermediate floors
 				if not self.any_buttons_below() and not self.any_calls_below():
 					if self.call_button_up[self.current_floor] or self.any_calls_above():
 						self.direction = 1
-				if not self.any_buttons_below() and not self.any_calls():
+				if not self.any_buttons_below() and not self.any_calls():	# Nothing to do
 					self.direction = 0
 			if self.current_floor == 0:
 				if self.any_calls():
 					self.direction = 1
 				else:
-					self.direction = 0
-		else:
-			self.first_call_floor = self.get_first_call_floor()
+					self.direction = 0	# Nothing to do, no calls
+		else:	# We're stopped
+			self.first_call_floor = self.get_first_call_floor()	# Figure out who pressed the first button
 			if self.current_floor != self.first_call_floor:
 				self.direction = np.sign(self.first_call_floor - self.current_floor)
 	
@@ -167,19 +168,19 @@ class Elevator():
 	def wait(self):
 		pass
 	
-	def set_first_call_direction(self):
+	def set_first_call_direction(self):	# Decide which way we are moving first
 		if self.call_button_up[self.current_floor] and not self.call_button_dn[self.current_floor]:
 			self.direction = 1
 		if not self.call_button_up[self.current_floor] and self.call_button_dn[self.current_floor]:
 			self.direction = -1
 		if self.call_button_up[self.current_floor] and self.call_button_dn[self.current_floor]:
-			r = random.random()
+			r = random.random()	# Both UP and DOWN buttons were pressed so we toss a coin
 			if r > 0.5:
 				direction = 1
 			else:
 				direction = -1
 	
-	def get_first_call_floor(self):
+	def get_first_call_floor(self):	# Randomly choose a floor from all calls
 		global TOP_FLOOR
 		floors_with_calls = []
 		for i in range(0, TOP_FLOOR + 1):
@@ -189,13 +190,24 @@ class Elevator():
 		return floors_with_calls[r]
 
 def prob_distro_arrivals(i, t):
+#
+# Arraivals follow a double gaussian distro with centers at c1 & c2 for the ground floor
+# and c3 & c4 for the rest. 
+# This is because everyone arrives on the ground floor at 8am and then those who come 
+# back from lunch arrive on the ground floor around 1pm
+#
+# All other floors see arrivals leaving for lunch around 12pm and leaving work around 5pm
+#
+# rate is a rate in people/min. To get the number of people in a given time step we multiply by
+# the time step. This would always be an average, so we randomize the arrivals (but on average we get
+# the same as the gaussian distro.)
+#
 	global TIME_STEP
 
 	if i == 0:
 		rate = A1*np.exp(-0.5*((t-c1)/s1)**2) + A2*np.exp(-0.5*((t-c2)/s2)**2)
 	else:
 		rate = A3*np.exp(-0.5*((t-c3)/s3)**2) + A4*np.exp(-0.5*((t-c4)/s4)**2)
-#	print ('prob_arrivals rate : %f' % rate)
 	if rate * TIME_STEP >= 1:
 		r = random.randint(0,round(2*rate*TIME_STEP))
 		return r
@@ -207,6 +219,12 @@ def prob_distro_arrivals(i, t):
 			return 0
 
 def prob_distro_dest_floor(i,t):
+#
+# This is the probability that an arriving passenger will choose a specific floor depending on
+# 1) What floor they are on
+# and
+# 2) The time of day
+#
 	global TOP_FLOOR
 	global P_NOON
 	global P_FIVE
