@@ -1,5 +1,5 @@
 #
-#	v1.0
+#	v1.1
 #	elevator_simulation is a cost analysis program for different
 #	elevator logic modes.
 #	Mode 1: Elevators can be called to the same floor simultaneously
@@ -9,6 +9,11 @@
 #
 #	Copyright (c) 2020 GB Tony Cabrera
 #
+#
+#	Changelog
+#
+#	1.1
+#	Fixed bug in dest_outside
 
 import random
 import numpy as np
