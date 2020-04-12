@@ -22,21 +22,21 @@ import numpy as np
 #		INIT
 ####################
 TOP_FLOOR = 4
-TIME_STEP = 0.25
-A1 = 10
-A2 = 4
-A3 = 4
-A4 = 5
-c1 = 90
-c2 = 390
-c3 = 330
-c4 = 630
-s1 = 10
-s2 = 30
-s3 = 30
-s4 = 20
-P_NOON = 0.75
-P_FIVE = 0.9
+TIME_STEP = 0.25	# in minutes
+A1 = 10		# rate in arrivals/min
+A2 = 4		# rate in arrivals/min
+A3 = 4		# rate in arrivals/min
+A4 = 5		# rate in arrivals/min
+c1 = 90		# center of 1st gaussian in minutes after start of day (6:30am + 90m = 8:00am)
+c2 = 390	# center of 2nd gaussian in minutes after start of day (1:00pm)
+c3 = 330	# center of 3rd gaussian in minutes after start of day (noon)
+c4 = 630	# center of 4th gaussian in minutes after start of day (5:00pm)
+s1 = 10		# width of 1st gaussian
+s2 = 30		# width of 2nd gaussian
+s3 = 30		# width of 3rd gaussian
+s4 = 20		# width of 4th gaussian
+P_NOON = 0.75	# probability that a person will have lunch outside the building
+P_FIVE = 0.9	# probability that a person is going home around 5:00pm
 
 class Elevator:
 
